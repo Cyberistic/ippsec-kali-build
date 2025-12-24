@@ -5,6 +5,13 @@
   become: true
   become_method: sudo
 
+- name: "Check if kernel audit is supported"
+  command: grep -q audit /proc/filesystems
+  register: audit_supported
+  failed_when: false
+  changed_when: false
+
+
 - name: "Configure Audit Rules"
   copy:
     src: audit.rules
