@@ -21,7 +21,7 @@ tested on *Kali 2025.4*
 * Updated BurpSuite Activation. Later versions of ansible would hang if a shell script started a process that didn't die. Put a timeout on the java process
 
 # KALI CHANGES 
-* Downloaded golang
+* Downloaded golang and rust/cargo
 * Ghostty Terminal Support: Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal
 * Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
 * Docker installation now uses Kali-native packages (`docker.io` and `docker-compose-plugin`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
