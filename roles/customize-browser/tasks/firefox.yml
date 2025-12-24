@@ -1,7 +1,37 @@
+- name: "Ensure Firefox profile directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}"
+    state: directory
+    mode: "0755"
+
+- name: "Deploy Firefox profile"
+  synchronize:
+    src: "files/firefox-profile/"
+    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}/"
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: "Check if profiles.ini exists"
+  stat:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
+  register: profiles_ini_stat
+
+- name: "Register Firefox profile in profiles.ini"
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
+    create: yes
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ firefox_profile_name }}"
+    block: |
+      [Profile{{ firefox_profile_index }}]
+      Name={{ firefox_profile_display_name }}
+      IsRelative=1
+      Path={{ firefox_profile_name }}
+      Default=1
+
 - name: "Updating Firefox Policies"
-  template: 
+  template:
     src: "templates/policies.json.j2"
     dest: "/usr/share/firefox-esr/distribution/policies.json"
   become: true
   become_method: sudo
-

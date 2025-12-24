@@ -1,1 +1,5 @@
 ---
+# Firefox profile configuration
+firefox_profile_name: "ippsec.default"
+firefox_profile_display_name: "IPPSec"
+firefox_profile_index: 0
