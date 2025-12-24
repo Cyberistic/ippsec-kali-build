@@ -44,7 +44,6 @@
     name:
       - jq
       - pipx
-      - ntpdate
       - flameshot
       - exiftool
       - rsyslog
