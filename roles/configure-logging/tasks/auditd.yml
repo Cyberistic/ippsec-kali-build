@@ -84,10 +84,17 @@
   become: true
   become_method: sudo
   
+- name: "Remove stale auditd PID file"
+  file:
+    path: /var/run/auditd.pid
+    state: absent
+  become: true
+  when: audit_supported.rc == 0
+
 - name: "Restart auditd"
   service:
     name: auditd
     state: restarted
   become: true
-  become_method: sudo
-
+  ignore_errors: true
+  when: audit_supported.rc == 0
