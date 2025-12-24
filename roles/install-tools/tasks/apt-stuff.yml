@@ -77,8 +77,15 @@
   become: true
   become_method: sudo
 
+- name: "Update apt cache after adding GitHub CLI repository"
+  apt:
+    update_cache: yes
+    cache_valid_time: 0
+  become: true
+  become_method: sudo
+
 - name: "Install GitHub CLI"
-  package:
+  apt:
     name:
       - gh
     state: latest
