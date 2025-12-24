@@ -21,7 +21,15 @@ tested on *Kali 2025.4*
 * Updated BurpSuite Activation. Later versions of ansible would hang if a shell script started a process that didn't die. Put a timeout on the java process
 
 # KALI CHANGES 
-* Downloaded golang and rust/cargo
-* Ghostty Terminal Support: Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal
-* Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
-* Docker installation now uses Kali-native packages (`docker.io` and `docker-compose-plugin`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
+* **Package Installations:**
+  * Added `golang` package for Go development tools
+  * Added Python build dependencies: `build-essential`, `python3-dev`, `libssl-dev`, `pkg-config`, `rustc`, and `cargo` for compiling Python packages with native extensions
+  * Removed deprecated `ntpdate` package (replaced by systemd-timesyncd in modern systems)
+  * Added GitHub CLI (`gh`) repository and package
+* **Terminal Configuration:**
+  * Made terminal customization flexible to work with or without MATE terminal (Kali may use different desktop environments)
+  * Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal
+* **Modern APT Key Management:** Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
+* **Docker Installation:** Changed to use Kali-native packages (`docker.io` and `docker-compose-plugin`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
+* **User Variable Fix:** Updated Docker group membership to use `ansible_env.USER` instead of `ansible_user` for better compatibility
+* **Playbook Name:** Changed playbook name from "Customizing Parrot" to "Customizing Kali"
