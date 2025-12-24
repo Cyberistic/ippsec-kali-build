@@ -1,8 +1,12 @@
 ---
+- name: Set terminfo temporary file path
+  set_fact:
+    terminfo_tmp_path: /tmp/xterm-ghostty.terminfo
+
 - name: Install xterm-ghostty terminfo
   copy:
     src: xterm-ghostty.terminfo
-    dest: /tmp/xterm-ghostty.terminfo
+    dest: "{{ terminfo_tmp_path }}"
     owner: root
     group: root
     mode: '0644'
@@ -15,6 +19,6 @@
   changed_when: false
 
 - name: Compile xterm-ghostty terminfo
-  command: tic /tmp/xterm-ghostty.terminfo
+  command: "tic {{ terminfo_tmp_path }}"
   become: yes
   when: terminfo_check.rc != 0
