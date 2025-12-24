@@ -1,33 +1,45 @@
-- name: "Ensure Firefox profile directory exists"
-  file:
-    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}"
-    state: directory
-    mode: "0755"
+- name: "Find default Firefox profile"
+  shell: |
+    if [ -f "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini" ]; then
+      grep -A2 "Default=1" "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini" | grep "^Path=" | cut -d'=' -f2
+    fi
+  register: default_profile
+  changed_when: false
+  failed_when: false
 
-- name: "Deploy Firefox profile"
-  synchronize:
-    src: "files/firefox-profile/"
-    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}/"
-    recursive: yes
-  delegate_to: "{{ inventory_hostname }}"
+- name: "Get first available profile if no default exists"
+  shell: |
+    if [ -d "{{ ansible_env.HOME }}/.mozilla/firefox" ]; then
+      find "{{ ansible_env.HOME }}/.mozilla/firefox" -maxdepth 1 -type d -name "*.default*" -o -name "*.default-release*" | head -n1 | xargs basename
+    fi
+  register: first_profile
+  changed_when: false
+  failed_when: false
+  when: default_profile.stdout == ""
 
-- name: "Check if profiles.ini exists"
-  stat:
-    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
-  register: profiles_ini_stat
+- name: "Set target profile path"
+  set_fact:
+    target_profile: "{{ default_profile.stdout if default_profile.stdout != '' else first_profile.stdout }}"
 
-- name: "Register Firefox profile in profiles.ini"
-  blockinfile:
-    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
-    create: yes
+- name: "Deploy Firefox profile extensions"
+  copy:
+    src: "files/firefox-profile/extensions/"
+    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/extensions/"
     mode: "0644"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ firefox_profile_name }}"
-    block: |
-      [Profile{{ firefox_profile_index }}]
-      Name={{ firefox_profile_display_name }}
-      IsRelative=1
-      Path={{ firefox_profile_name }}
-      Default=1
+  when: target_profile != ""
+
+- name: "Deploy Firefox profile preferences"
+  copy:
+    src: "files/firefox-profile/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/{{ item }}"
+    mode: "0644"
+    backup: yes
+  loop:
+    - prefs.js
+    - handlers.json
+    - search.json.mozlz4
+  when: target_profile != ""
+  ignore_errors: yes
 
 - name: "Updating Firefox Policies"
   template:
