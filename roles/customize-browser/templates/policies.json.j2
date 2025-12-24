@@ -9,7 +9,7 @@
     "OverrideFirstRunPage": "",
     "OverridePostUpdatePage": "",
     "Homepage": {
-      "URL": "https://start.parrotsec.org",
+      "URL": "about:blank",
       "Locked": false,
       "StartPage": "homepage"
     },
@@ -46,9 +46,23 @@
     },
     "Extensions": {
       "Install": [
-{% for item in FirefoxPlugins %}
+        {% for item in FirefoxPlugins %}
         "https://addons.mozilla.org/firefox/downloads/latest/{{ item }}/latest.xpi"{{ "," if not loop.last }}
-{% endfor %}
+        {% endfor %}
+      ]
+    },
+    "FoxyProxy": {
+      "Proxies": [
+        {
+          "Title": "Burp Suite",
+          "PatternType": "Wildcard",
+          "URLPatterns": ["*"],
+          "ProxyType": "HTTP",
+          "ProxyIP": "127.0.0.1",
+          "ProxyPort": 8080,
+          "Enabled": true,
+          "Mode": "UseProxy"
+        }
       ]
     },
     "FirefoxHome": {
@@ -62,16 +76,10 @@
     "HardwareAcceleration": true,
     "NetworkPrediction": false,
     "PopupBlocking": {
-      "Allow": ["https://crypt.parrot.sh",
-                "https://pad.parrot.sh"],
+      "Allow": [],
       "Default": false,
       "Locked": false
     },
-    "PromptForDownloadLocation": true,
-    "SupportMenu": {
-      "Title": "Parrot Support",
-      "URL": "https://community.parrotsec.org",
-      "AccessKey": "S"
-    }
+    "PromptForDownloadLocation": true
   }
 }
