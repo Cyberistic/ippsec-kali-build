@@ -13,31 +13,40 @@
       fi
     insertafter: EOF
     create: yes
+
+- name: "Check if MATE terminal is available"
+  command: which mate-terminal
+  register: mate_terminal_check
+  failed_when: false
+  changed_when: false
     
 - name: "Read current mate terminal profiles"
   dconf:
     key: "/org/mate/terminal/global/profile-list"
     state: "read"
   register: "profile_list"
+  when: mate_terminal_check.rc == 0
+  failed_when: false
 
 - name: "profile_list was not set, setting"
   set_fact:
     profile_list: 
       value: '["default"]'
-  when: profile_list.value is none
+  when: mate_terminal_check.rc == 0 and (profile_list.value is none or profile_list.value is undefined)
 
 - name: "Adding our profile"
   set_fact:
     new_profile_list: "{{ profile_list.value | regex_replace(']$', \", 'video']\") }}"
+  when: mate_terminal_check.rc == 0 and profile_list.value is defined
 
 - name: "Writing updated profile list"
   dconf:
     key: "/org/mate/terminal/global/profile-list"
     value: "{{ new_profile_list }}"
-  when: "'video' not in profile_list.value"
+  when: mate_terminal_check.rc == 0 and profile_list.value is defined and "'video' not in profile_list.value"
   
 - name: "Restoring Video Profile from Dump"
   shell:
     cmd: "dconf load /org/mate/terminal/profiles/video/ < {{ role_path }}/files/dconf-dump-video"
-  when: "'video' not in profile_list.value"
+  when: mate_terminal_check.rc == 0 and profile_list.value is defined and "'video' not in profile_list.value"
 
