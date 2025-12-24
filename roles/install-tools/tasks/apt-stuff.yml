@@ -64,7 +64,7 @@
 
 - name: "Install Docker Repository"
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ distribution }} stable"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian bookworm stable"
     state: present
     update_cache: yes
   become: true
