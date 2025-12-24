@@ -9,33 +9,11 @@
   become: true
   become_method: sudo
 
-- name: "Remove unofficial docker images"
-  package:
-    name: 
-      - docker.io
-      - docker-compose
-      - docker-doc
-      - podman-docker
-    state: absent
-  register: docker_remove  
-  become: true
-  become_method: sudo
-
 - name: "Remove NetExec - We want to use pipx for this"
   package:
     name: 
       - netexec
     state: absent
-  become: true
-  become_method: sudo
-
-- name: "Remove Containerd/Runc"
-  package:
-    name: 
-      - containerd
-      - runc
-    state: absent
-  when: docker_remove.changed
   become: true
   become_method: sudo
 
@@ -85,36 +63,28 @@
   become: true
   become_method: sudo
 
-- name: "Download Docker GPG key"
-  shell: |
-    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    chmod 644 /etc/apt/keyrings/docker.gpg
-  args:
-    creates: /etc/apt/keyrings/docker.gpg
-  become: true
-  become_method: sudo
-
-- name: "Install Docker Repository"
-  apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ docker_distribution }} stable"
+- name: "Install Docker (Kali-supported)"
+  apt:
+    name:
+      - docker.io
+      - docker-compose-plugin
     state: present
     update_cache: yes
   become: true
   become_method: sudo
 
-- name: "Upgrade all packages"
-  apt: upgrade=yes force_apt_get=yes
+- name: "Enable Docker service"
+  service:
+    name: docker
+    state: started
+    enabled: true
   become: true
   become_method: sudo
 
-- name: "Install Docker"
-  package:
-    name: 
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
-    state: latest
+- name: "Add user to docker group"
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
   become: true
   become_method: sudo
