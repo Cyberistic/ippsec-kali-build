@@ -72,11 +72,6 @@
   become: true
   become_method: sudo
 
-- name: "Install Docker Compose via pipx"
-  pipx:
-    name: docker-compose
-    state: present
-  become: true
 
 
 - name: "Enable Docker service"
