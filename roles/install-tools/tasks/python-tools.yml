@@ -1,4 +1,17 @@
 ---
+- name: "Install build deps for Python tools"
+  apt:
+    name:
+      - build-essential
+      - python3-dev
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
+    state: present
+  become: true
+
+  
 - name: "Install pipx tools"
   community.general.pipx:
     name: "{{ item.name }}"
