@@ -27,7 +27,10 @@ tested on _Kali 2025.4_, On a MacBook M2 Pro (AMD64) running VMWARE Fusion.
 - Made terminal customization flexible to work with or without MATE terminal (Kali may use different desktop environments)
 - Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal (through SSH)
 - Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
+- Added automatic cleanup of duplicate GitHub CLI repositories to prevent apt warnings
+- Added automatic detection and removal of broken Microsoft VS Code repositories (handles both old `.list` and new `.sources` formats) to prevent apt update failures when keyring files are missing
 - Docker installation now uses Kali-native packages (`docker.io` and `docker-compose`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
 - Burpsuite install script rewritten to work with Kali
 - Foxyproxy adjusted to be auto-installed and configured with BurpSuite
 - Downloaded UFW through apt
+- Firefox profile deployment now automatically detects and updates the existing default profile instead of creating a new one, deploying extensions (DarkReader, FoxyProxy, Wappalyzer) and preferences with automatic backup of original settings
