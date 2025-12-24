@@ -49,6 +49,28 @@
       - rsyslog
       - ca-certificates
       - curl
+    state: latest
+  become: true
+  become_method: sudo
+
+- name: "Add GitHub CLI keyring to apt"
+  apt_key:
+    url: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
+    state: present
+  become: true
+  become_method: sudo
+
+- name: "Install GitHub CLI Repository"
+  apt_repository:
+    repo: "deb [arch=amd64] https://cli.github.com/packages stable main"
+    state: present
+    update_cache: yes
+  become: true
+  become_method: sudo
+
+- name: "Install GitHub CLI"
+  package:
+    name:
       - gh
     state: latest
   become: true
