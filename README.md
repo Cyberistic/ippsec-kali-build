@@ -1,7 +1,9 @@
+## IMPORTANT: This is a direct fork of Ippsec's build, with minimal changes to make it work with Kali instead of Parrot. 
+
 ** Make sure to pip install ansible, apt has an older copy **
 
 # Instructions
-* Start with Parrot HTB Edition
+* Start with Kali installation
 * Install Ansible (python3 -m pip install ansible)
 * Clone and enter the repo (git clone)
 * ansible-galaxy install -r requirements.yml
