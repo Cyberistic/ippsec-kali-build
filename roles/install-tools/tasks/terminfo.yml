@@ -1,0 +1,12 @@
+---
+- name: Install xterm-ghostty terminfo
+  copy:
+    src: xterm-ghostty.terminfo
+    dest: /tmp/xterm-ghostty.terminfo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Compile xterm-ghostty terminfo
+  command: tic /tmp/xterm-ghostty.terminfo
+  become: yes
