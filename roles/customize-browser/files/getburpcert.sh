@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BURP_JAR="/opt/burpsuite/burpsuite.jar"
+BURP_JAR="/usr/share/burpsuite/burpsuite.jar"
 CERT_OUT="/tmp/cacert.der"
 
 # Sanity checks
