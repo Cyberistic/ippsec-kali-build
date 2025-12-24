@@ -1,54 +1,33 @@
-- name: "Find default Firefox profile"
-  shell: |
-    if [ -f "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini" ]; then
-      grep -A2 "Default=1" "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini" | grep "^Path=" | cut -d'=' -f2
-    fi
-  register: default_profile
-  changed_when: false
-  failed_when: false
+- name: "Ensure Firefox profile directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}"
+    state: directory
+    mode: "0755"
 
-- name: "Get first available profile if no default exists"
-  shell: |
-    if [ -d "{{ ansible_env.HOME }}/.mozilla/firefox" ]; then
-      find "{{ ansible_env.HOME }}/.mozilla/firefox" -maxdepth 1 -type d -name "*.default*" -o -name "*.default-release*" | head -n1 | xargs basename
-    fi
-  register: first_profile
-  changed_when: false
-  failed_when: false
-  when: default_profile.stdout == ""
-
-- name: "Set target profile path"
-  set_fact:
-    target_profile: "{{ default_profile.stdout if default_profile.stdout != '' else (first_profile.stdout | default('')) }}"
-
-- name: "Debug target profile"
-  debug:
-    msg: "Target Firefox profile: {{ target_profile }}"
-
-- name: "Kill Firefox if running"
-  shell: pkill -9 firefox || true
-  changed_when: false
-
-- name: "Wait for Firefox to close"
-  pause:
-    seconds: 2
-
-- name: "Deploy complete Firefox profile"
+- name: "Deploy Firefox profile"
   synchronize:
     src: "files/firefox-profile/"
-    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/"
+    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ firefox_profile_name }}/"
     recursive: yes
-    delete: no
   delegate_to: "{{ inventory_hostname }}"
-  when: target_profile != ""
 
-- name: "Set correct permissions on profile directory"
-  file:
-    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}"
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
-    recurse: yes
-  when: target_profile != ""
+- name: "Check if profiles.ini exists"
+  stat:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
+  register: profiles_ini_stat
+
+- name: "Register Firefox profile in profiles.ini"
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/profiles.ini"
+    create: yes
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ firefox_profile_name }}"
+    block: |
+      [Profile{{ firefox_profile_index }}]
+      Name={{ firefox_profile_display_name }}
+      IsRelative=1
+      Path={{ firefox_profile_name }}
+      Default=1
 
 - name: "Updating Firefox Policies"
   template:
