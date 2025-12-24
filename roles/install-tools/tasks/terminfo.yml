@@ -6,7 +6,10 @@
     owner: root
     group: root
     mode: '0644'
+  become: yes
 
 - name: Compile xterm-ghostty terminfo
   command: tic /tmp/xterm-ghostty.terminfo
+  args:
+    creates: ~/.terminfo/x/xterm-ghostty
   become: yes
