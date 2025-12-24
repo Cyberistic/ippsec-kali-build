@@ -25,50 +25,30 @@
   debug:
     msg: "Target Firefox profile: {{ target_profile }}"
 
-- name: "Check if target profile exists"
-  stat:
-    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}"
-  register: profile_dir
-  when: target_profile != ""
-
 - name: "Kill Firefox if running"
   shell: pkill -9 firefox || true
   changed_when: false
-  when: target_profile != "" and profile_dir.stat.exists
 
 - name: "Wait for Firefox to close"
   pause:
     seconds: 2
-  when: target_profile != "" and profile_dir.stat.exists
 
-- name: "Deploy Firefox profile extensions"
-  copy:
-    src: "files/firefox-profile/extensions/"
-    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/extensions/"
-    mode: "0644"
-  when: target_profile != "" and profile_dir.stat.exists
+- name: "Deploy complete Firefox profile"
+  synchronize:
+    src: "files/firefox-profile/"
+    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/"
+    recursive: yes
+    delete: no
+  delegate_to: "{{ inventory_hostname }}"
+  when: target_profile != ""
 
-- name: "Check which preference files exist in source"
-  stat:
-    path: "{{ role_path }}/files/firefox-profile/{{ item }}"
-  loop:
-    - prefs.js
-    - handlers.json
-    - search.json.mozlz4
-  register: pref_files
-  delegate_to: localhost
-
-- name: "Deploy Firefox profile preferences"
-  copy:
-    src: "files/firefox-profile/{{ item.item }}"
-    dest: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}/{{ item.item }}"
-    mode: "0644"
-    backup: yes
-  loop: "{{ pref_files.results }}"
-  when:
-    - target_profile != ""
-    - profile_dir.stat.exists
-    - item.stat.exists
+- name: "Set correct permissions on profile directory"
+  file:
+    path: "{{ ansible_env.HOME }}/.mozilla/firefox/{{ target_profile }}"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    recurse: yes
+  when: target_profile != ""
 
 - name: "Updating Firefox Policies"
   template:
