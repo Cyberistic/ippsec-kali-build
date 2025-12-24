@@ -85,7 +85,7 @@
   become_method: sudo
 
 - name: "Install GitHub CLI"
-  apt:
+  package:
     name:
       - gh
     state: latest
