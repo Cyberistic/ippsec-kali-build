@@ -53,16 +53,25 @@
   become: true
   become_method: sudo
 
-- name: "Add GitHub CLI keyring to apt"
-  apt_key:
+- name: "Create /etc/apt/keyrings directory for modern APT keyring management"
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+  become_method: sudo
+
+- name: "Download GitHub CLI GPG key"
+  get_url:
     url: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
-    state: present
+    dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    mode: '0644'
   become: true
   become_method: sudo
 
 - name: "Install GitHub CLI Repository"
   apt_repository:
-    repo: "deb [arch=amd64] https://cli.github.com/packages stable main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
     state: present
     update_cache: yes
   become: true
@@ -76,16 +85,18 @@
   become: true
   become_method: sudo
 
-- name: "Add Docker keyring to apt"
-  apt_key:
-    url: "https://download.docker.com/linux/debian/gpg"
-    state: present
+- name: "Download Docker GPG key"
+  shell: |
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod 644 /etc/apt/keyrings/docker.gpg
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
   become: true
   become_method: sudo
 
 - name: "Install Docker Repository"
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ docker_distribution }} stable"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ docker_distribution }} stable"
     state: present
     update_cache: yes
   become: true
