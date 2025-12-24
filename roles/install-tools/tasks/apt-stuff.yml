@@ -27,6 +27,7 @@
       - rsyslog
       - ca-certificates
       - curl
+      - golang
     state: latest
   become: true
   become_method: sudo
@@ -84,7 +85,7 @@
 
 - name: "Add user to docker group"
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ ansible_env.USER }}"
     groups: docker
     append: yes
   become: true
