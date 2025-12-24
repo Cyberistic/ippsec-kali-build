@@ -77,7 +77,6 @@
   become_method: sudo
 
 
-
 - name: "Enable Docker service"
   service:
     name: docker
@@ -91,5 +90,14 @@
     name: "{{ ansible_env.USER }}"
     groups: docker
     append: yes
+  become: true
+  become_method: sudo
+
+- name: "Install burpsuite"
+  apt:
+    name:
+      - burpsuite
+    state: present
+    update_cache: yes
   become: true
   become_method: sudo
