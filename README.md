@@ -27,4 +27,5 @@ tested on *Kali 2025.4*, On a MacBook M2 Pro (AMD64) running VMWARE Fusion.
 * Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal (through SSH)
 * Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
 * Docker installation now uses Kali-native packages (`docker.io` and `docker-compose`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
-* Fixed incorrect burpsuite JRE path
+* Burpsuite install script rewritten to work with Kali
+* Downloaded UFW through apt
