@@ -33,4 +33,3 @@ tested on _Kali 2025.4_, On a MacBook M2 Pro (AMD64) running VMWARE Fusion.
 - Burpsuite install script rewritten to work with Kali
 - Foxyproxy adjusted to be auto-installed and configured with BurpSuite
 - Downloaded UFW through apt
-- Firefox profile deployment now automatically detects and updates the existing default profile instead of creating a new one, deploying extensions (DarkReader, FoxyProxy, Wappalyzer) and preferences with automatic backup of original settings
