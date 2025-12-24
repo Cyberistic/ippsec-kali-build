@@ -1,39 +1,64 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
-BURP_JAR="/usr/share/burpsuite/burpsuite.jar"
-CERT_OUT="/tmp/cacert.der"
+BURP_PORT=8080
+OUT_CERT="/tmp/cacert.der"
+TIMEOUT=90
 
-# Sanity checks
+echo "[*] Locating Burp Suite..."
+
+# 1. Locate Burp launcher
+BURP_BIN="$(command -v burpsuite || true)"
+if [[ -z "$BURP_BIN" ]]; then
+  echo "[!] burpsuite not found in PATH"
+  exit 1
+fi
+
+# 2. Resolve the actual JAR from the launcher
+BURP_JAR="$(grep -oE '/.*burp[^ ]+\.jar' "$BURP_BIN" | head -n1)"
+
+if [[ ! -f "$BURP_JAR" ]]; then
+  echo "[!] Failed to locate Burp JAR"
+  exit 1
+fi
+
+echo "[+] Using Burp JAR: $BURP_JAR"
+
+# 3. Ensure Java exists
 if ! command -v java >/dev/null 2>&1; then
-  echo "Java not installed"
+  echo "[!] Java is not installed"
   exit 1
 fi
 
-if [ ! -f "$BURP_JAR" ]; then
-  echo "Burp JAR not found at $BURP_JAR"
-  exit 1
-fi
+# 4. Start Burp headless and auto-accept license
+echo "[*] Starting Burp headless..."
+yes y | timeout "$TIMEOUT" java \
+  -Djava.awt.headless=true \
+  -jar "$BURP_JAR" >/tmp/burp.log 2>&1 &
 
-# Start Burp headless
-java -Xmx1g -Djava.awt.headless=true -jar "$BURP_JAR" >/tmp/burp.log 2>&1 &
 BURP_PID=$!
 
-# Wait for Burp proxy to come up
+# 5. Wait for proxy to come up
+echo "[*] Waiting for Burp proxy on port $BURP_PORT..."
 for i in {1..30}; do
-  if curl -sf http://127.0.0.1:8080/cert -o "$CERT_OUT"; then
+  if curl -s "http://127.0.0.1:$BURP_PORT/cert" >/dev/null; then
     break
   fi
   sleep 2
 done
 
-# Ensure cert was actually fetched
-if [ ! -s "$CERT_OUT" ]; then
-  echo "Failed to retrieve Burp CA certificate"
+# 6. Download CA cert
+if curl -sf "http://127.0.0.1:$BURP_PORT/cert" -o "$OUT_CERT"; then
+  echo "[+] Burp CA certificate saved to $OUT_CERT"
+else
+  echo "[!] Failed to retrieve Burp CA certificate"
   kill "$BURP_PID" 2>/dev/null || true
   exit 1
 fi
 
-# Stop Burp cleanly
-kill "$BURP_PID"
-wait "$BURP_PID" 2>/dev/null || true
+# 7. Cleanup
+kill "$BURP_PID" 2>/dev/null || true
+sleep 2
+
+echo "[✓] Burp CA extraction complete"
+exit 0
