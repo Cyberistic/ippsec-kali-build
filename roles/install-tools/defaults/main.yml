@@ -1,3 +1,5 @@
 ---
 # defaults file for configure-logging
 distribution: "kali-rolling"
+# Docker uses Debian repository codenames, not Kali-specific ones
+docker_distribution: "bookworm"
