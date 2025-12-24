@@ -22,6 +22,9 @@ tested on *Kali 2025.4*
 
 # KALI CHANGES 
 * Downloaded golang and rust/cargo
-* Ghostty Terminal Support: Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal
+* Removed deprecated `ntpdate` package (replaced by systemd-timesyncd in modern systems)
+* Made terminal customization flexible to work with or without MATE terminal (Kali may use different desktop environments)
+* Added xterm-ghostty terminfo entry for proper terminal emulation with Ghostty terminal (through SSH)
 * Replaced deprecated `apt-key` with modern keyring management for GitHub CLI repository. Keys are now stored in `/etc/apt/keyrings/` with `signed-by` parameter in repository definitions, following current Debian best practices
-* Docker installation now uses Kali-native packages (`docker.io` and `docker-compose-plugin`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
+* Docker installation now uses Kali-native packages (`docker.io` and `docker-compose`) instead of Docker CE repositories, ensuring compatibility with both AMD64 and ARM architectures
+* Fixed incorrect burpsuite JRE path
