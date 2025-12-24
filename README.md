@@ -1,6 +1,6 @@
 ## IMPORTANT: This is a fork of Ippsec's build, with minimal changes to make it work with Kali instead of Parrot. 
 
-tested on *Kali 2025.4*
+tested on *Kali 2025.4*, On a MacBook M2 Pro (AMD64) running VMWARE Fusion.
 
 
 
