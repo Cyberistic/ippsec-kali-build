@@ -6,8 +6,6 @@
       - python3-dev
       - libssl-dev
       - pkg-config
-      - rustc
-      - cargo
     state: present
   become: true
 
