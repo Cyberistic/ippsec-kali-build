@@ -53,7 +53,7 @@
   become: true
   become_method: sudo
 
-- name: "Create /etc/apt/keyrings directory"
+- name: "Create /etc/apt/keyrings directory for modern APT keyring management"
   file:
     path: /etc/apt/keyrings
     state: directory
