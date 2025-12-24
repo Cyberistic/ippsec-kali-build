@@ -1,4 +1,36 @@
 ---
+- name: "Check for Microsoft repository (old format)"
+  stat:
+    path: /etc/apt/sources.list.d/vscode.list
+  register: vscode_repo_old
+
+- name: "Check for Microsoft repository (new format)"
+  stat:
+    path: /etc/apt/sources.list.d/vscode.sources
+  register: vscode_repo_new
+
+- name: "Check if Microsoft keyring exists"
+  stat:
+    path: /usr/share/keyrings/microsoft.gpg
+  register: microsoft_keyring
+  when: vscode_repo_old.stat.exists or vscode_repo_new.stat.exists
+
+- name: "Remove broken Microsoft repository (old format) if keyring is missing"
+  file:
+    path: /etc/apt/sources.list.d/vscode.list
+    state: absent
+  become: true
+  become_method: sudo
+  when: vscode_repo_old.stat.exists and (not microsoft_keyring.stat.exists or not microsoft_keyring.stat.readable)
+
+- name: "Remove broken Microsoft repository (new format) if keyring is missing"
+  file:
+    path: /etc/apt/sources.list.d/vscode.sources
+    state: absent
+  become: true
+  become_method: sudo
+  when: vscode_repo_new.stat.exists and (not microsoft_keyring.stat.exists or not microsoft_keyring.stat.readable)
+
 - name: "Updating apt repo/cache"
   apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
   become: true
@@ -11,7 +43,7 @@
 
 - name: "Remove NetExec - We want to use pipx for this"
   package:
-    name: 
+    name:
       - netexec
     state: absent
   become: true
@@ -38,7 +70,7 @@
   file:
     path: /etc/apt/keyrings
     state: directory
-    mode: '0755'
+    mode: "0755"
   become: true
   become_method: sudo
 
@@ -46,7 +78,7 @@
   get_url:
     url: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
     dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    mode: '0644'
+    mode: "0644"
   become: true
   become_method: sudo
 
@@ -75,7 +107,6 @@
     update_cache: yes
   become: true
   become_method: sudo
-
 
 - name: "Enable Docker service"
   service:
