@@ -1,4 +1,13 @@
 ---
+- name: "Install UFW"
+  apt:
+    name: ufw
+    state: present
+    update_cache: yes
+  become: true
+  become_method: sudo
+
+
 - name: "Enable rsyslog service"
   service:
     name: rsyslog
